@@ -1,0 +1,258 @@
+--[[
+    Wind UI 通用脚本
+    基于 Footagesus/WindUI 框架
+    适用于 Roblox 执行器（如 Synapse X, Krnl, ScriptWare 等）
+    
+    功能说明：
+    - 创建现代化图形界面
+    - 支持多种控件：按钮、开关、输入框、下拉菜单、滑动条、颜色选择器、快捷键绑定
+    - 支持主题切换、透明度调节
+    - 支持配置文件保存/加载
+--]]
+
+-- ========== 1. 加载 Wind UI 库 ==========
+-- 从 GitHub 下载最新的 Wind UI 框架代码并执行
+-- loadstring: 将下载的字符串代码转换为可执行函数
+-- game:HttpGet: 发送 HTTP GET 请求获取远程文件内容
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+-- ========== 2. 可选：显示启动弹窗 ==========
+-- Popup 会在界面加载前显示一个模态对话框
+-- 用户必须点击按钮后才能继续执行后续代码
+WindUI:Popup({
+    Title = "脚本已加载",                    -- 弹窗标题
+    Icon = "check-circle",                  -- 图标名称（Lucide 图标库）
+    IconThemed = true,                      -- 图标颜色跟随主题
+    Content = "Wind UI 通用脚本模板\n版本 1.0",  -- 弹窗内容，\n 表示换行
+    Buttons = {                             -- 按钮列表
+        { 
+            Title = "确定",                  -- 按钮文字
+            Callback = function() end,      -- 点击回调函数（空函数）
+            Variant = "Primary"             -- 按钮样式：Primary(主色)/Secondary(次要)/Tertiary(文字)
+        }
+    }
+})
+
+-- ========== 3. 创建主窗口 ==========
+-- CreateWindow 是整个 UI 的根容器，所有标签页和控件都放在里面
+local Window = WindUI:CreateWindow({
+    Title = "我的脚本",                      -- 窗口标题（显示在顶部栏）
+    Icon = "terminal",                      -- 窗口图标（Lucide 图标名或 rbxassetid）
+    IconThemed = true,                      -- 图标颜色跟随主题（深色/浅色模式自动适配）
+    Author = "通用脚本",                    -- 作者名称（显示在标题栏）
+    Folder = "MyScript",                    -- 配置文件保存的文件夹名称
+    Size = UDim2.fromOffset(550, 450),     -- 窗口大小：宽度550，高度450
+    Theme = "Dark",                         -- 主题：Dark(深色) / Light(浅色)
+    SideBarWidth = 180,                     -- 侧边栏宽度（像素）
+    Transparent = false,                    -- 窗口是否半透明（默认false）
+    Resizable = true,                       -- 是否允许用户调整窗口大小
+    ScrollBarEnabled = true,                -- 是否启用滚动条
+})
+
+-- ========== 4. 创建标签页（Tab） ==========
+-- 标签页显示在左侧边栏，点击可切换右侧内容区域
+local MainTab = Window:Tab({                -- 主页标签
+    Title = "主页",                          -- 标签页名称
+    Icon = "home"                           -- 标签页图标
+})
+
+local SettingsTab = Window:Tab({            -- 设置标签
+    Title = "设置", 
+    Icon = "settings"
+})
+
+-- ========== 5. 主页内容控件 ==========
+
+-- 5.1 段落控件（Paragraph）
+-- 用于显示文字说明、描述信息，支持富文本和图片
+MainTab:Paragraph({
+    Title = "欢迎使用",                      -- 段落标题（粗体显示）
+    Desc = "这是一个 Wind UI 通用脚本模板",   -- 段落描述（普通文字）
+    Image = "info",                         -- 左侧图标（Lucide 图标名）
+    -- ImageSize = 42,                      -- 可选：图标大小（像素）
+    -- Color = "Blue",                      -- 可选：主题色（Default/Red/Orange/Green/Blue/Grey/White）
+})
+
+-- 5.2 分割线（Divider）
+-- 在控件之间添加一条分隔线，用于视觉分组
+MainTab:Divider()
+
+-- 5.3 按钮控件（Button）
+-- 用户点击时执行指定的回调函数
+MainTab:Button({
+    Title = "执行功能",                      -- 按钮上显示的文字
+    Desc = "点击执行你的代码",               -- 按钮下方的描述文字（可选）
+    Callback = function()                   -- 点击时执行的函数
+        print("功能已执行！")                -- 控制台输出
+        WindUI:Notify({                     -- 显示通知弹窗
+            Title = "提示",                  -- 通知标题
+            Content = "功能执行成功",        -- 通知内容
+            Duration = 3,                   -- 显示时长（秒）
+        })
+    end
+})
+
+-- 5.4 开关控件（Toggle）
+-- 用于开启/关闭某个功能，返回布尔值（true/false）
+local featureEnabled = false                -- 存储开关状态的变量
+MainTab:Toggle({
+    Title = "启用功能模块",                  -- 开关标题
+    Desc = "开启/关闭某个功能",              -- 开关描述
+    Value = false,                          -- 初始状态：false(关闭)/true(开启)
+    Callback = function(state)              -- 状态改变时执行的回调
+        featureEnabled = state              -- 更新变量值
+        print("功能开关:", state)           -- 输出当前状态
+        -- state 为 true 表示开启，false 表示关闭
+    end
+})
+
+-- 5.5 输入框控件（Input）
+-- 用于接收用户输入的文本内容
+MainTab:Input({
+    Title = "参数输入",                      -- 输入框标题
+    Placeholder = "请输入内容",              -- 占位提示文字（输入框为空时显示）
+    -- Type = "Input",                      -- 可选：Input(单行)/Textarea(多行)
+    -- Value = "默认值",                    -- 可选：默认填充的文字
+    Callback = function(input)              -- 输入完成后（按回车或失去焦点）执行
+        print("输入内容:", input)           -- input 为用户输入的字符串
+    end
+})
+
+-- 5.6 下拉菜单控件（Dropdown）
+-- 用于从多个选项中选择一个或多个
+MainTab:Dropdown({
+    Title = "选择选项",                      -- 下拉菜单标题
+    Values = { "选项1", "选项2", "选项3" },  -- 可选的选项列表（字符串数组）
+    Value = "选项1",                        -- 默认选中的选项
+    -- Multi = false,                       -- 可选：是否允许多选（true=多选，false=单选）
+    -- AllowNone = false,                   -- 可选：是否允许不选任何项
+    Callback = function(option)             -- 选中选项时执行的回调
+        print("选中:", option)              -- option 为选中的值（多选时返回数组）
+    end
+})
+
+-- 5.7 滑动条控件（Slider）
+-- 用于在最小值和最大值之间选择一个数值
+MainTab:Slider({
+    Title = "数值调节",                      -- 滑动条标题
+    Value = {                               -- 数值配置
+        Min = 0,                            -- 最小值
+        Max = 100,                          -- 最大值
+        Default = 50,                       -- 默认值
+    },
+    -- Step = 1,                            -- 可选：步长（每次变化的幅度，如 0.1、5 等）
+    Callback = function(value)              -- 数值变化时执行的回调
+        print("当前值:", value)             -- value 为当前选中的数值
+    end
+})
+
+-- 5.8 颜色选择器控件（Colorpicker）
+-- 用于选择颜色，支持透明度
+MainTab:Colorpicker({
+    Title = "选择颜色",                      -- 颜色选择器标题
+    Default = Color3.fromRGB(59, 130, 246), -- 默认颜色（这里用的是蓝色）
+    -- Transparency = 0,                    -- 可选：默认透明度（0-1，0=不透明，1=全透明）
+    Callback = function(color, transparency) -- 颜色改变时执行的回调
+        -- color: Color3 对象，可用 :ToHex() 转换为十六进制字符串（如 "#3B82F6"）
+        -- transparency: 透明度值（0-1）
+        print("选中颜色:", color:ToHex())
+    end
+})
+
+-- 5.9 快捷键绑定控件（Keybind）
+-- 用于绑定键盘按键，按下指定键时执行操作
+MainTab:Keybind({
+    Title = "快捷键",                        -- 快捷键标题
+    Desc = "设置打开/关闭快捷键",            -- 描述文字
+    Value = "G",                            -- 默认绑定的按键（字符串形式）
+    Callback = function(key)                -- 按键改变时执行的回调
+        -- key 为按键名称字符串，如 "G"、"F"、"Space" 等
+        -- SetToggleKey 设置窗口的显示/隐藏快捷键
+        Window:SetToggleKey(Enum.KeyCode[key])  -- 将字符串转换为 Enum.KeyCode 并设置
+    end
+})
+
+-- ========== 6. 设置页面内容 ==========
+
+-- 6.1 段落控件 - 关于信息
+SettingsTab:Paragraph({
+    Title = "关于脚本",
+    Desc = "Wind UI 通用脚本模板\n适用于 Roblox 执行器",
+    Image = "info",
+})
+
+SettingsTab:Divider()
+
+-- 6.2 重新加载按钮
+-- 重新执行脚本代码，实现热重载效果
+SettingsTab:Button({
+    Title = "重新加载脚本",
+    Callback = function()
+        -- 重新下载并执行当前脚本
+        -- ... 表示可变参数，这里获取当前脚本的源码地址
+        loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+        WindUI:Notify({
+            Title = "提示", 
+            Content = "脚本已重新加载", 
+            Duration = 2
+        })
+    end
+})
+
+-- 6.3 关闭界面按钮
+-- 调用 Window:Close() 关闭整个 UI 窗口
+SettingsTab:Button({
+    Title = "关闭界面",
+    Callback = function()
+        Window:Close()      -- 关闭窗口，界面消失
+    end
+})
+
+-- ========== 7. 可选：主题切换下拉菜单 =========
+-- 注释掉的示例代码，可根据需要取消注释使用
+--[[
+local themeValues = {}
+for name, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themeValues, name)
+end
+
+SettingsTab:Dropdown({
+    Title = "切换主题",
+    Values = themeValues,
+    Value = WindUI:GetCurrentTheme(),
+    Callback = function(theme)
+        WindUI:SetTheme(theme)
+    end
+})
+--]]
+
+-- ========== 8. 窗口关闭回调 ==========
+-- 当用户点击窗口右上角的关闭按钮时执行
+Window:OnClose(function()
+    print("窗口已关闭")      -- 控制台输出
+    -- 可以在这里执行清理代码，如保存配置、停止循环等
+end)
+
+-- ========== 9. 控制台输出加载完成信息 ==========
+print("Wind UI 脚本加载完成")
+
+-- ========== 10. 可选：通知控件使用说明 ==========
+-- Notify 用于在屏幕角落显示短暂的通知消息
+-- WindUI:Notify({
+--     Title = "提示",
+--     Content = "界面已加载，使用快捷键 G 打开/关闭",
+--     Duration = 3,
+--     Icon = "info",
+-- })
+
+-- ========== 附录：常用 Lucide 图标名称 ==========
+-- home（主页）、settings（设置）、user（用户）
+-- bell（通知）、mail（邮件）、search（搜索）
+-- heart（喜欢）、star（收藏）、check（确认）
+-- x（关闭）、plus（添加）、minus（减少）
+-- play（播放）、pause（暂停）、stop（停止）
+-- arrow-left（左箭头）、arrow-right（右箭头）
+-- lock（锁定）、unlock（解锁）、eye（可见）、eye-off（隐藏）
+-- download（下载）、upload（上传）、save（保存）、trash（删除）
+-- edit（编辑）、copy（复制）、clipboard（剪贴板）
+-- info（信息）、alert-circle（警告）、help-circle（帮助）
